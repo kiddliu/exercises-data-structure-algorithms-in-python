@@ -1,3 +1,4 @@
+from __future__ import print_function
 '''
 R-1.1 Write a short Python function, is_multiple(n, m), that takes two integer values and
 returns True if n is a multiple of m, that is, n = mi for some integer i, and False otherwise
@@ -196,7 +197,7 @@ C-1.21 Write a Python program that repeatedly reads lines from standard input un
 is raised, and then outputs those lines in reverse order (a user can indicate end of input by
 typing Ctrl-D).
 '''
-def main():
+def main121():
     lines = []
     try:
         while True:
@@ -205,9 +206,6 @@ def main():
         pass
     for line in lines:
             print(line)
-
-if __name__ == "__main__":
-    main()
 
 '''
 C-1.22 Write a short Python program that takes two arrays a and b of length n storing int values,
@@ -297,3 +295,198 @@ and norm(v) returns the Euclidean norm of v. You may assume that v is a list of 
 def norm(v, p = 2):
     import math
     return math.pow(sum(math.pow(k, p) for k in v), 1 / p)
+
+'''
+P-1.29 Write a Python program that outputs all possible string formed by useing the characters
+'c', 'a', 't', 'd', 'o', and 'g' exactly once
+'''
+def main129():
+    results = ['c']
+    for k in ['a', 't', 'd', 'o', 'g']:
+        temp = []
+        for result in results:
+            temp += [(result[:i] + k + result[i:]) for i in range(len(result) + 1)]
+        results = temp
+    return results
+
+'''
+P-1.30 Write a Python program that can take a positive integer greater than 2 as input and
+write out the number of times one must repeatedly divide this number by 2
+before getting a value less than 2.
+'''
+import sys
+import argparse
+import math
+
+def main130():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input', action = GreaterThanTwoAction, metavar = 'N', type = int, nargs = 1)
+
+    args = parser.parse_args()
+    print(math.ceil(math.log2(args.input[0])))
+
+class GreaterThanTwoAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string = None):
+        if values[0] <= 2:
+            raise ValueError("N must be bigger than 2.")
+        setattr(namespace, self.dest, values)
+
+'''
+P-1.31 Write a Python program that can "make change." Your program should take two numbers as input
+, one that is a monetary amount charged and the other that is a monetary amount given. It should
+then return the number of each kind of bill and coin to give back as change for the difference
+between the amount given and the amount charged. The values assigned to the bills and coins can be
+based on the monetary system of any current or former government. Try to design your program
+so that it returns as few bills and coins as possible.
+
+The monetary system of PRC:
+Banknotes: 100, 50, 20, 10, 5, 2, 1
+Coins: 0.5, 0.1
+'''
+def main131():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('charged', action = PositiveAction, metavar = 'charged', type = float, nargs = 1)
+    parser.add_argument('given', action = PositiveAction, metavar = 'given', type = float, nargs = 1)
+
+    args = parser.parse_args()
+
+    charged = args.charged[0]
+    given = args.given[0]
+    diff = given - charged
+
+    if diff < 0:
+        return print('Insufficient fund...')
+    
+    print('Change is: ' + str(diff))
+    bills = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.1]
+    change = [0] * len(bills)
+
+    for i in range(len(bills)):
+        while diff >= bills[i] or math.isclose(diff, bills[i], rel_tol=1e-1):
+            change[i] += 1
+            diff -= bills[i]
+    
+    print('Banknotes: 100: {}, 50: {}, 20: {}, 10: {}, 5: {}, 2: {}, 1: {} Coins: 0.5: {}, 0.1: {}'.format(*change))
+
+class PositiveAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string = None):
+        if values[0] <= 0:
+            raise ValueError("The input must be positive.")
+        setattr(namespace, self.dest, values)
+
+'''
+P-1.32 Write a Python program that can simulate a simple calculator, using the console
+as the exclusive input and output device. That is, each input to the calculator, be it a number,
+like 12.34 or 1034, or an operator, like + or =, can be done on a seperate line. After
+each such input, you should output to the Python console what would be displayed on your calculator
+'''
+'''
+P-1.33 Write a Python program that simulates a handheld calculator. Your program should
+process input from the Python console representing buttons that are "pushed," and then output
+the contents of the screen after each operation is performed. Minimally, your calculator should
+be able to process the basic arithmetic operations and a reset/clear operation.
+'''
+import operator
+
+def main_calculator():
+    user_input = ''
+
+    op_dict = {'+': operator.add, '-': operator.sub, '*': operator.mul, '/': operator.truediv, '%': operator.mod}
+    current = None
+    op = None
+    operand = None
+    try:
+        while True:
+            user_input = input()
+            if user_input.replace('.', '', 1).isdigit():
+                if op == None:
+                    current = int(user_input) if is_int(user_input) else float(user_input)
+                else:
+                    operand = int(user_input) if is_int(user_input) else float(user_input)
+                    current = op_dict[op](current, operand)
+                    op = None
+                    operand = None
+                    print('=' + str(current))
+            elif user_input in '+-*/%' and operand == None:
+                op = user_input
+                if current == None:
+                    current = 0
+            elif user_input in 'cC':
+                current = None
+                op = None
+                operand = None
+    except EOFError:
+        pass
+
+def is_int(k):
+    try: 
+        int(k)
+        return True
+    except ValueError:
+        return False
+
+'''
+P-1.34 A common punishment for school children is to write out a sentence multiple times. Write
+a Python stand-alone program that will write out the following sentence one hundred times:
+"I will never spam my friends again." Your program should number each of the sentences and
+it should make eight different random-looking typos.
+'''
+def main134():
+    homework = "I will never spam my friends again."
+    typo = [
+        lambda s: s.replace('will', 'vill'),
+        lambda s: s.replace('never', 'navr'),
+        lambda s: s.replace('spam', 'span'),
+        lambda s: s.replace('friends', 'friend'),
+        lambda s: s.replace('again', 'agin'),
+        lambda s: s.replace('friends', 'frinds'),
+        lambda s: s.replace('will', 'wil'),
+        lambda s: s.replace('spam my', 'spammy')
+    ]
+    random_lines = set()
+    while len(random_lines) < 8:
+        random_lines.add(random.randint(0, 99))
+
+    for i in range(100):
+        if i in random_lines:
+            random_typo = typo[random.randint(0, len(typo) - 1)]
+            print('{}: {}'.format(i + 1, random_typo(homework)))
+            typo.remove(random_typo)
+        else:
+            print('{}: {}'.format(i + 1, homework))
+
+'''
+P-1.35 The birthday praradox says that the probability that two peiple in a room will have the same
+birthday is more than half, provided by n, the number of people in the room, is more than 23. This
+property is not really a paradox, but many people find it surprising. Design a Python program that
+can test this paradox by a series of experiments on randomly generated birthdays, which test this
+paradox for n = 5, 10, 15, 20, ..., 100.
+'''
+def main135():
+    n = range(5, 105, 5)
+    
+    # the possibility that each has a unique birthday
+    for i in n:
+        p_unique = math.prod(day / 365 for day in range(365, 365 - i, -1))
+        print('The possibility of n = {} is {}'.format(i, 1 - p_unique))
+
+'''
+P-1.36 Write a Python program that inputs a list of words, separated by whitespace, and outputs
+how many times each word appears in the list. You need not worry about efficiency at this point,
+however, as this topic is something that will be addressed later in this book.
+'''
+def main136():
+    src = 'path of some file'
+    fp = open(src, "r")
+
+    word_count = {}
+    for line in fp.readlines():
+        words = line.split(' ')
+        for word in words:
+            if word in word_count:
+                word_count[word] += 1
+            else:
+                word_count[word] = 1
+
+if __name__ == "__main__":
+    main()
