@@ -439,3 +439,103 @@ class SqrtProgression(Progression):
 
     def _advance(self):
         self._prev, self._current = self._current, math.sqrt(self._current)
+
+'''
+P-2.33 Write a Python program that inputs a polynomial in standard algebraic notation and outputs
+the first derivative of that polynomial.
+'''
+import re
+
+def main233():
+    polynomial = input('Please input the polynomial: ')
+    symbol = None
+    parsed = []
+    first_directive = []
+
+    for raw in re.split('+|-', polynomial):
+        term = raw.strip()
+
+        if parsed == []:
+            symbol = term[term.find('*') + 1:term.find('*') + 2]
+
+        const = int(term[:term.find('*')])
+        degree = int(term[term.find('**') + 2:]) if term.find('**') != -1 else 0
+        parsed.append((const, degree))
+
+    parsed = sorted(parsed, key = lambda t: t[1], reverse = True)
+
+    for t in parsed:
+        if t[1] != 0:
+            first_directive.append((t[0] * t[1], t[1] - 1))
+
+'''
+P-2.34 Write a Python program that inputs a document and then outputs a barchart plot of
+the frequencies of each alphabet character that appears in that document.
+'''
+import matplotlib.pyplot as plt; plt.rcdefaults()
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+
+def main234():
+    document = input('Please input the document: ')
+    frequencies = {}
+
+    for c in document:
+        if c.isalpha():
+            if c in frequencies:
+                frequencies[c] += 1
+            else
+                frequencies[c] = 1
+
+    ordered = OrderedDict(sorted(frequencies.items()))
+
+    alphabets = ordered.keys()
+    y_pos = np.arange(len(alphabets))
+    count = ordered.values()
+
+    plt.bar(y_pos, count, align='center', alpha=0.5)
+    plt.xticks(y_pos, alphabets)
+    plt.ylabel('Frequencies')
+    plt.title('Alphabet character that appears in that document')
+
+    plt.show()
+
+'''
+P-2.35 Write a set of Python classes that can simulate an Internet application in which one party,
+Alice, is periodically creating a set of packets that she wants to send to Bob. An Internet process
+is continually checking if Alice has any packets to send, and if so, it delivers them to Bob's
+computer, and Bob is periodically checking if his computer has a packet from Alice, and if so,
+he reads and deletes it.
+'''
+class Alice:
+    def __init__(self):
+        self._packets = []
+
+    def get_packets(self):
+        return self._packets
+    
+    def send(self, packets):
+        self._packets.append(packets)
+
+class InternetProcess:
+    def __init__(self, alice, bob):
+        self._alice = alice
+        self._bob = bob
+
+    def process(self):
+        while True:
+            packets = self._alice.get_packets()
+            if len(packets) > 0:
+                self._bob.receive(packets)
+
+class Bob:
+    def __init__(self):
+        self._packets = []
+
+    def receive(self, packets):
+        self._packets = packets
+    
+    def read(self):
+        print(self._packets)
+        self._packets.clear()
