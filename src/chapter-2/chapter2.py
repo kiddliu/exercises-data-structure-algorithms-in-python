@@ -539,3 +539,69 @@ class Bob:
     def read(self):
         print(self._packets)
         self._packets.clear()
+
+'''
+P-2.36 Write a Python program to simulate an ecosystem containing two types of creatures,
+bears and fish. The ecosystem consists of a river, which is modeled as a relatively large list.
+Each element of the list should be a Bear object, a Fish object, or None. In each time step,
+based on a random process, each animal either attempts to move into an adjacent list location
+or stay where it is. If two animals of the same type are about to collide in the same cell,
+then they stay where they are, but they create a new instance of that type of animal,
+which is placed in a random empty (i.e., previously None) location in the list. If a bear
+and a fish collide, however, then the fish dies (i.e., it disappears).
+'''
+import random
+from enum import Enum
+
+class Direction(Enum):
+    Stay = 0
+    GoLeft = 1
+    GoRight = 2
+
+class Ecosystem:
+    def __init__(self, max_river_len):
+        self._river = []
+
+        river_len = random.randint(0, max_river_len)
+        for slot in range(river_len):
+            self._river.append(random.choice([Bear(), Fish(), None]))
+
+    def evolve(self):
+        moves = random.randint(0, len(self._river))
+
+        while moves > 0:
+            moves -= 1
+            slot = random.randint(0, len(self._river))
+            if isinstance(self._river[slot], (Bear, Fish)):
+                choice = random.choice(list(Direction))
+                target = None
+                if choice == Direction.GoLeft:
+                    if slot > 0:
+                        target = slot - 1
+                    else:
+                        continue
+                elif choice == Direction.GoRight:
+                    if slot + 1 < len(self._river):
+                        target = slot + 1
+                    else:
+                        continue
+                else:
+                    continue
+
+                if self._river[target] == None:
+                    self._river[target] = self._river[slot]
+                    self._river[slot] = None
+                    continue
+
+                if type(self._river[slot]) == type(self._river[target]):
+                    self._river[random.choice([i for i, x in enumerate(self._river) if x == None])] = type(self._river[slot])()
+                elif isinstance(self._river[slot], Fish):
+                    self._river[slot] = None
+                else:
+                    self._river[target] = None 
+
+class Bear:
+    pass
+
+class Fish:
+    pass
