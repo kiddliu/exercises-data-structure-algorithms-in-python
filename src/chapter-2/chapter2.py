@@ -549,6 +549,12 @@ or stay where it is. If two animals of the same type are about to collide in the
 then they stay where they are, but they create a new instance of that type of animal,
 which is placed in a random empty (i.e., previously None) location in the list. If a bear
 and a fish collide, however, then the fish dies (i.e., it disappears).
+
+P-2.37 Write a simulator, as in the previous project, but add a Boolean gender field and
+a floating-point strength field to each animal, using an Animal class as a base class. If
+two animals of the same type try to collide, then they only create a new instance of that type of
+animal if they are of different genders. Otherwise, if two animals of the same type and gender
+try to collide, then only the one of larger strength survives.
 '''
 import random
 from enum import Enum
@@ -564,7 +570,9 @@ class Ecosystem:
 
         river_len = random.randint(0, max_river_len)
         for slot in range(river_len):
-            self._river.append(random.choice([Bear(), Fish(), None]))
+            bear = Bear(random.choice(True, False), random.random())
+            fish = Fish(random.choice(True, False), random.random())
+            self._river.append(random.choice([bear, fish, None]))
 
     def evolve(self):
         moves = random.randint(0, len(self._river))
@@ -594,14 +602,144 @@ class Ecosystem:
                     continue
 
                 if type(self._river[slot]) == type(self._river[target]):
-                    self._river[random.choice([i for i, x in enumerate(self._river) if x == None])] = type(self._river[slot])()
+                    if self._river[slot]._male != self._river[target]._male:
+                        self._river[random.choice([i for i, x in enumerate(self._river) if x == None])] = type(self._river[slot])(random.choice(True, False), random.random())
+                    elif self._river[slot]._strength > self._river[target]._strength:
+                        self._river[target] = self._river[slot]
+                        self._river[slot] = None
+                    else:
+                        self._river[target] = None
+
                 elif isinstance(self._river[slot], Fish):
                     self._river[slot] = None
                 else:
                     self._river[target] = None 
 
-class Bear:
+class Animal:
+    def __init__(self, male, strength):
+        self._male = bool(male)
+        self._strength = float(strength)
+
+class Bear(Animal):
     pass
 
-class Fish:
+class Fish(Animal):
     pass
+
+'''
+P-2.38 Write a Python program that simulates a system that supports the functions of an e-book reader.
+You should include methods for users of your system to “buy” new books, view their list of purchased
+books, and read their purchased books. Your system should use actual books, which have expired
+copyrights and are available on the Internet, to populate your set of available books for users of
+your system to “purchase” and read.
+'''
+import argparse
+
+def main238():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('action', choices=['list', 'buy', 'read'])
+    parser.add_argument('name')
+
+    args = parser.parse_args()
+
+    books = {}
+    user_owned = {}
+
+    if args.action == 'buy':
+        book = args.name
+        if book in books:
+            user_owned[book] = books[book]
+    elif args.action == 'list':
+        for book in user_owned:
+            print(user_owned[book].title)
+    elif args.action == 'read':
+        book = args.name
+        if book in user_owned:
+            print(user_owned[book].content)
+
+if __name__ == "__main__":
+    main238()
+
+'''
+P-2.39 Develop an inheritance hierarchy based upon a Polygon class that has abstract methods area()
+and perimeter(). Implement classes Triangle, Quadrilateral, Pentagon, Hexagon, and Octagon that
+extend this base class, with the obvious meanings for the area() and perimeter() methods.
+Also implement classes, IsoscelesTriangle, EquilateralTriangle, Rectangle, and Square, that
+have the appropriate inheritance relationships. Finally, write a simple program that allows users
+to create polygons of the various types and input their geometric dimensions, and the program then
+outputs their area and perimeter. For extra effort, allow users to input polygons by specifying
+their vertex coordinates and be able to test if two such polygons are similar.
+
+Hint: let's assume
+        * the vertices is already ordered, either clockwise or counter-clockwise
+        * each vertices is presented by a tuple (x, y)
+'''
+from abc import ABC, abstractmethod
+from math import sqrt
+
+class Polygon(ABC):
+
+    def __init__(self, vertices):
+        if self.v != len(vertices):
+            raise ValueError('Need {} vertices but got {}'.format(self.v, len(vertices)))
+        self.vertices = vertices
+
+    @property
+    def v(self) -> int:
+        raise NotImplementedError
+    
+    @abstractmethod
+    def area(self) -> float:
+        result = 0
+        for v in range(len(self._vertices)):
+            cur = self._vertices[v]
+            nex = self._vertices[v + 1] if v + 1 < len(self._vertices) else self._vertices[0]
+            result += cur[0] * nex[1] - nex[0] * cur[1]
+        return result / 2
+
+
+    @abstractmethod
+    def perimeter(self) -> float:
+        result = 0
+        for v in range(len(self._vertices)):
+            cur = self._vertices[v]
+            nex = self._vertices[v + 1] if v + 1 < len(self._vertices) else self._vertices[0]
+            result += sqrt((nex[0] - cur[0]) ** 2 + (nex[1] - cur[1]) ** 2)
+        return result
+
+class Triangle(Polygon):
+    @property
+    def v(self) -> int:
+        return 3
+
+class IsoscelesTriangle(Triangle):
+    pass
+
+class EquilateralTriangle(IsoscelesTriangle):
+    pass
+
+class Quadrilateral(Polygon):
+    @property
+    def v(self) -> int:
+        return 4
+
+class Rectangle(Quadrilateral):
+    pass
+
+class Square(Rectangle):
+    pass
+
+class Pentagon(Polygon):
+    @property
+    def v(self) -> int:
+        return 5
+
+class Hexagon(Polygon):
+    @property
+    def v(self) -> int:
+        return 6
+
+class Octagon(Polygon):
+    @property
+    def v(self) -> int:
+        return 8
