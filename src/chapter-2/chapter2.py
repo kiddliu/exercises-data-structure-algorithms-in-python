@@ -676,6 +676,7 @@ Hint: let's assume
 '''
 from abc import ABC, abstractmethod
 from math import sqrt
+from numpy import roll
 
 class Polygon(ABC):
 
@@ -706,6 +707,28 @@ class Polygon(ABC):
             nex = self._vertices[v + 1] if v + 1 < len(self._vertices) else self._vertices[0]
             result += sqrt((nex[0] - cur[0]) ** 2 + (nex[1] - cur[1]) ** 2)
         return result
+
+    def angels(self) -> list:
+        result = []
+        for v in range(len(self.vertices)):
+            x1, x2, x3 = self.vertices[v][0], self.vertices[(v + 1) % self.v][0], self.vertices[(v + 2) % self.v][0]
+            y1, y2, y3 = self.vertices[v][1], self.vertices[(v + 1) % self.v][1], self.vertices[(v + 2) % self.v][1]
+            result.append(math.acos(((x2 - x1) * (x3 - x2) + (y2 - y1) * (y3 - y2)) / (math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) * math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2))))
+        return result
+
+    def similar(self, other) -> bool:
+        # a brute force algorithm comparing 2 sequences
+        if len(self) != len(other):
+            return False
+
+        if set(self.angels) != set(other.angels):
+            return False
+
+        for i in range(self.v):
+            if roll(other.angles) != self.angels:
+                return False
+
+        return True
 
 class Triangle(Polygon):
     @property
