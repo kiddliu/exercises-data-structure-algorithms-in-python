@@ -320,5 +320,44 @@ describe the expected number of times inhabitants of this city are happy with th
 Answer: E(0, N) = 1 + 1/2 + 1/3 + 1/4 + ... + 1/N
 '''
 
+'''
+C-3.35 Assuming it is possible to sort n numbers in O(nlogn) time, show that it is possible to solve the
+three-way set disjointness problem in O(nlogn) time.
+
+Answer: Just merge these sets and sort the merged array in O(nlogn) time, then traverse the array and check if
+there are 3 identical numbers in it. It's O(nlogn + cn), which is O(nlogn).
+'''
+
+'''
+C-3.36 Describe an efficient algorithm for finding the ten largest elements in a sequence of size n. 
+What is the running time of your algorithm?
+
+Answer: https://www.geeksforgeeks.org/k-largestor-smallest-elements-in-an-array/
+'''
+
+'''
+C-3.37 Give an example of a positive function f(n) such that f(n) is neither O(n) nor Ω(n).
+
+Answer: f(n) = n^2 * sin^2(n)
+'''
+
+'''
+C-3.38 Show that ∑ni=1 i^2 is O(n3).
+
+Answer: 1^2 + 2^2 + ... + n^2 <= n^2 + n^2 + ... + n^2 = n^3, for n > 0, then we say it's O(n^3)
+'''
+
+'''
+C-3.39 Show that ∑ni=1 i/2^i < 2. (Hint: Try to bound this sum term by term with a geometric progression.)
+
+Answer: https://math.stackexchange.com/a/2172734
+'''
+
+'''
+C-3.40 Show that logbf(n) is Θ(logf(n)) if b > 1 is a constant.
+
+Answer logbf(n) = log(f(n)) / log(b), where log(b) is a constant decreasing number, then we say it's Θ(logf(n))
+'''
+
 if __name__ == "__main__":
     main()
